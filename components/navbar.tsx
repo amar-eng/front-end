@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import logo from '../public/instaclean.svg';
+import logo from '../public/instaclean3.svg';
 import { Menu } from 'lucide-react';
 
 const Navbar = () => {
