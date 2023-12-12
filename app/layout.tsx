@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/navbar';
+
+import { ModalProvider } from '@/providers/modal-provider';
 
 const font = Outfit({ subsets: ['latin'] });
 
@@ -17,7 +18,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={font.className}>{children}</body>
+      <body className={font.className}>
+        <ModalProvider />
+        {children}
+      </body>
     </html>
   );
 }
