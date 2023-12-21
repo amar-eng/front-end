@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
-import { Outfit } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 
 import { ModalProvider } from '@/providers/modal-provider';
 
-const font = Outfit({ subsets: ['latin'] });
+const font = Montserrat({
+  weight: ['100', '300', '400', '500', '700', '900'],
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
   title: 'instaclean',

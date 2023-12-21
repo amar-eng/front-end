@@ -7,7 +7,7 @@ import { useController, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 import { Input } from '../ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AlarmPlus,
   DoorClosed,
@@ -17,10 +17,10 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Calendar } from '../ui/calendar';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { TabsContent } from '@radix-ui/react-tabs';
-import { Autocomplete } from '@react-google-maps/api';
+import {} from 'react-dom';
 
 type ServiceKeys = keyof Omit<
   typeof formSchema.shape,
@@ -63,8 +63,8 @@ const additionalServices: {
     time: '+45 minutes',
   },
   {
-    id: 'movingIn',
-    name: 'Moving In',
+    id: 'carpetCleaning',
+    name: 'Carpet Cleaning',
     time: '+60 minutes',
   },
   {
@@ -80,7 +80,12 @@ const additionalServices: {
 ];
 
 type FormData = {
-  address: string;
+  address: {
+    apartmentNumber?: string;
+    street: string;
+    city: string;
+    postalCode: string;
+  };
   rooms: number;
   bathrooms: number;
   date: Date;
@@ -91,13 +96,18 @@ type FormData = {
   insideMicrowave: boolean;
   laundry: boolean;
   deepCleaning: boolean;
-  movingIn: boolean;
+  carpetCleaning: boolean;
   movingOut: boolean;
   interiorWindows: boolean;
 };
 
 const formSchema = z.object({
-  address: z.string().min(1),
+  address: z.object({
+    apartmentNumber: z.string().optional(),
+    street: z.string().min(1, { message: 'Street is required' }),
+    city: z.string().min(1, { message: 'City is required' }),
+    postalCode: z.string().min(1, { message: 'Postal Code is required' }),
+  }),
   rooms: z.number().min(1),
   bathrooms: z.number().min(1),
   date: z.date(),
@@ -108,7 +118,7 @@ const formSchema = z.object({
   insideMicrowave: z.boolean(),
   laundry: z.boolean(),
   deepCleaning: z.boolean(),
-  movingIn: z.boolean(),
+  carpetCleaning: z.boolean(),
   movingOut: z.boolean(),
   interiorWindows: z.boolean(),
 });
@@ -135,14 +145,14 @@ const CounterInput: React.FC<CounterInputProps> = ({ name, control }) => {
       <button
         onClick={onDecrement}
         disabled={field.value <= 1}
-        className="border border-black rounded-full px-3 py-1"
+        className="border bg-primaryBlue border-primaryBlue text-white cursor-pointer rounded-full px-3 py-1 text-md "
       >
         -
       </button>
-      <div className="  ">{field.value}</div>
+      <div className="text-sm">{field.value}</div>
       <button
         onClick={onIncrement}
-        className="border border-black rounded-full px-3 py-1"
+        className="border bg-primaryBlue border-primaryBlue text-white cursor-pointer rounded-full px-3 py-1 text-md"
       >
         +
       </button>
@@ -154,13 +164,20 @@ export const StoreModal = () => {
   const storeModal = useStoreModal();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData | {}>({});
-  const [date, setDate] = useState(new Date());
   const [time, setTime] = useState('');
+
+  const tomorrow = addDays(new Date(), 1);
+  const [date, setDate] = useState(tomorrow);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      address: '',
+      address: {
+        apartmentNumber: '',
+        street: '',
+        city: '',
+        postalCode: '',
+      },
       rooms: 1,
       bathrooms: 1,
       date: new Date(),
@@ -171,7 +188,7 @@ export const StoreModal = () => {
       insideMicrowave: false,
       laundry: false,
       deepCleaning: false,
-      movingIn: false,
+      carpetCleaning: false,
       movingOut: false,
       interiorWindows: false,
     },
@@ -181,7 +198,12 @@ export const StoreModal = () => {
     console.log('Submitting Step', currentStep);
     console.log('Form Values', values);
 
-    setFormData((prev) => ({ ...prev, ...values, time: time }));
+    setFormData((prev) => ({
+      ...prev,
+      ...values,
+
+      time: time,
+    }));
 
     if (currentStep < 3) {
       console.log('Moving to Next Step');
@@ -207,13 +229,18 @@ export const StoreModal = () => {
     'Book your services',
     'What address do you want us to come to',
     'What day and time works best for you',
-    'What Service do you need from us',
+    'What Service can we help with',
+  ];
+  const descBasedOnStage = [
+    'Book your services',
+    'We are currently operating in the GTA only',
+    'Bookings start from tomorrow',
   ];
 
   return (
     <Modal
       title={titleBasedOnStage[currentStep]}
-      description=""
+      description={descBasedOnStage[currentStep] || ''}
       isOpen={storeModal.isOpen}
       onClose={storeModal.onClose}
     >
@@ -222,8 +249,16 @@ export const StoreModal = () => {
           <div className="mb-4 w-100 ">
             <div className="flex justify-between  mb-4   ">
               <p className="font-light">Location</p>
-              <div className="flex gap-2">
-                <p className="font-thin">{(formData as FormData).address}</p>
+              <div className="flex gap-2 items-end">
+                <p className="font-thin text-sm">
+                  {(formData as FormData).address &&
+                    `${
+                      (formData as FormData).address.apartmentNumber
+                        ? (formData as FormData).address.apartmentNumber + ' - '
+                        : ''
+                    }${(formData as FormData).address.street || ''}`}
+                </p>
+
                 <HomeIcon strokeWidth={1} />
               </div>
             </div>
@@ -233,16 +268,24 @@ export const StoreModal = () => {
           <div className="mb-4 ">
             <div className="flex gap-4 mb-4 items-center justify-between">
               <p className="font-light">Location:</p>
-              <div className="flex gap-2 items-center">
-                <p className="font-thin">{(formData as FormData).address}</p>
-                <HomeIcon strokeWidth={1} />
+              <div className="flex gap-2 items-end">
+                <p className="font-thin text-sm">
+                  {(formData as FormData).address &&
+                    `${
+                      (formData as FormData).address.apartmentNumber
+                        ? (formData as FormData).address.apartmentNumber + ' - '
+                        : ''
+                    }${(formData as FormData).address.street || ''}`}
+                </p>
+
+                <HomeIcon strokeWidth={1} color="#0e7490" />
               </div>
             </div>
             <div className="mt-2 font-thin flex justify-between">
               <div className="font-light">Selected Date: </div>
-              <div className="flex gap-1 text-right">
+              <div className="flex gap-1 text-right text-sm items-center">
                 {date ? format(date, 'PPP') : 'None'} at {time || 'None'}
-                <History strokeWidth={1} />
+                <History strokeWidth={1} color="#0e7490" />
               </div>
             </div>
           </div>
@@ -252,21 +295,61 @@ export const StoreModal = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               {currentStep === 1 && (
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Address</FormLabel>
-                      <FormControl>
-                        <Autocomplete>
+                <>
+                  <FormField
+                    control={form.control}
+                    name="address.apartmentNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apartment Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Your apartment number"
+                            {...field}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.street"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
                           <Input placeholder="Your address" {...field} />
-                        </Autocomplete>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your city" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.postalCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Postal Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Your postal code" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
+
               {currentStep === 2 && (
                 <div className="md:flex md:items-start md:gap-4">
                   <FormItem>
@@ -280,7 +363,7 @@ export const StoreModal = () => {
                             form.setValue('date', selectedDate);
                           }
                         }}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => date <= new Date()}
                         className="rounded-md border shadow"
                       />
                     </FormControl>
@@ -293,57 +376,39 @@ export const StoreModal = () => {
                       </TabsList>
 
                       <TabsContent value="AM" className="flex flex-wrap gap-2">
-                        {[
-                          '07:00',
-                          '07:30',
-                          '08:00',
-                          '08:30',
-                          '09:00',
-                          '09:30',
-                          '10:00',
-                          '10:30',
-                          '11:00',
-                          '11:30',
-                        ].map((timeSlot) => {
-                          const fullTimeSlot = `${timeSlot} AM`;
-                          const isSelected = time === fullTimeSlot;
+                        {['07:00', '08:00', '09:00', '10:00', '11:00'].map(
+                          (timeSlot) => {
+                            const fullTimeSlot = `${timeSlot} AM`;
+                            const isSelected = time === fullTimeSlot;
 
-                          return (
-                            <Button
-                              key={timeSlot}
-                              type="button"
-                              className={`border rounded-md px-4 py-2 ${
-                                isSelected ? 'bg-sky-950 text-white' : ''
-                              }`}
-                              onClick={() => handleTimeSelection(fullTimeSlot)}
-                            >
-                              {timeSlot}
-                            </Button>
-                          );
-                        })}
+                            return (
+                              <Button
+                                key={timeSlot}
+                                type="button"
+                                className={`border rounded-md px-4 py-2 ${
+                                  isSelected ? 'bg-sky-950 text-white' : ''
+                                }`}
+                                onClick={() =>
+                                  handleTimeSelection(fullTimeSlot)
+                                }
+                              >
+                                {timeSlot}
+                              </Button>
+                            );
+                          }
+                        )}
                       </TabsContent>
                       <TabsContent value="PM" className="flex flex-wrap gap-2">
                         {[
                           '12:00',
-                          '12:30',
                           '01:00',
-                          '01:30',
                           '02:00',
-                          '02:30',
                           '03:00',
-                          '03:30',
                           '04:00',
-                          '04:30',
                           '05:00',
-                          '05:30',
                           '06:00',
-                          '06:30',
-                          '06:00',
-                          '06:30',
                           '07:00',
-                          '07:30',
                           '08:00',
-                          '08:30',
                         ].map((timeSlot) => {
                           const fullTimeSlot = `${timeSlot} PM`;
                           const isSelected = time === fullTimeSlot;
@@ -375,8 +440,8 @@ export const StoreModal = () => {
                     render={() => (
                       <FormItem className="flex justify-between items-center">
                         <div className="flex items-center gap-1">
-                          <DoorClosed strokeWidth={1} />
-                          <FormLabel className="text-lg font-normal">
+                          <DoorClosed strokeWidth={1} width={20} height={20} />
+                          <FormLabel className="text-md font-normal">
                             Rooms
                           </FormLabel>
                         </div>
@@ -394,8 +459,8 @@ export const StoreModal = () => {
                     render={() => (
                       <FormItem className="flex justify-between items-center mt-5">
                         <div className="flex items-center gap-1">
-                          <ShowerHead strokeWidth={1} />
-                          <FormLabel className="text-lg font-normal">
+                          <ShowerHead strokeWidth={1} width={20} height={20} />
+                          <FormLabel className="text-md font-normal">
                             Bathrooms
                           </FormLabel>
                         </div>
@@ -414,9 +479,9 @@ export const StoreModal = () => {
                   {additionalServices.map((service) => (
                     <div
                       key={service.id}
-                      className="flex items-center justify-between space-y-2"
+                      className="flex items-center justify-between space-y-3"
                     >
-                      <div className="flex items-center space-x-2 ">
+                      <div className="flex items-center space-x-2  ">
                         <input
                           type="checkbox"
                           {...form.register(service.id)}
@@ -430,8 +495,8 @@ export const StoreModal = () => {
                           {service.name}
                         </label>
                       </div>
-                      <div className="flex items-center justify-between w-[105px]">
-                        <AlarmPlus strokeWidth="1" width={20} />
+                      <div className="flex items-center justify-between w-[115px]">
+                        <AlarmPlus strokeWidth="1" width={20} color="#0e7490" />
                         <p className="text-sm font-light">{service.time}</p>
                       </div>
                     </div>

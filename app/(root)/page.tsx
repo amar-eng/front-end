@@ -4,7 +4,7 @@ import Hero from '@/components/hero';
 import Navbar from '@/components/navbar';
 import Shared from '@/components/shared';
 
-export default function Home() {
+const Home = async () => {
   return (
     <>
       <Shared>
@@ -13,4 +13,6 @@ export default function Home() {
       </Shared>
     </>
   );
-}
+};
+
+export default Home;
