@@ -20,7 +20,7 @@ import { Calendar } from '../ui/calendar';
 import { addDays, format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { TabsContent } from '@radix-ui/react-tabs';
-import {} from 'react-dom';
+import { useRouter } from 'next/navigation';
 
 type ServiceKeys = keyof Omit<
   typeof formSchema.shape,
@@ -165,9 +165,12 @@ export const StoreModal = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData | {}>({});
   const [time, setTime] = useState('');
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
 
   const tomorrow = addDays(new Date(), 1);
   const [date, setDate] = useState(tomorrow);
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -201,7 +204,6 @@ export const StoreModal = () => {
     setFormData((prev) => ({
       ...prev,
       ...values,
-
       time: time,
     }));
 
@@ -210,7 +212,12 @@ export const StoreModal = () => {
       setCurrentStep(currentStep + 1);
     } else {
       console.log('Final submission', values);
-      // Here you would handle the final submission, like sending data to an API
+      if (showOrderSummary) {
+        storeModal.onClose();
+        router.push(`/order`);
+      } else {
+        setShowOrderSummary(true);
+      }
     }
   };
 
@@ -516,13 +523,19 @@ export const StoreModal = () => {
                   </Button>
                 )}
 
-                <Button
-                  type="submit"
-                  className="mt-5"
-                  disabled={currentStep === 2 && !time}
-                >
-                  {currentStep === 1 || currentStep === 2 ? 'Next' : 'Book'}
-                </Button>
+                {currentStep === 1 || currentStep === 2 ? (
+                  <Button
+                    type="submit"
+                    className="mt-5"
+                    disabled={currentStep === 2 && !time}
+                  >
+                    Next
+                  </Button>
+                ) : (
+                  <Button type="submit" className="mt-5">
+                    Calculate Price
+                  </Button>
+                )}
               </div>
             </form>
           </Form>

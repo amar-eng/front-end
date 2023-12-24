@@ -15,4 +15,5 @@ export interface Service {
   name: string;
   category: Category;
   price: string;
+  time: string;
 }
