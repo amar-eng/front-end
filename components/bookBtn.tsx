@@ -14,7 +14,7 @@ const BookBtn = () => {
   };
   return (
     <Button className="mx-5 w-50 py-6" size="lg" onClick={handleButtonClick}>
-      Book Now
+      Get a Quote
     </Button>
   );
 };
