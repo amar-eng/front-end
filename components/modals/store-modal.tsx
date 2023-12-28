@@ -7,7 +7,7 @@ import { useController, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 import { Input } from '../ui/input';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   AlarmPlus,
   DoorClosed,
@@ -21,6 +21,7 @@ import { addDays, format } from 'date-fns';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { useRouter } from 'next/navigation';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 type ServiceKeys = keyof Omit<
   typeof formSchema.shape,
@@ -80,6 +81,7 @@ const additionalServices: {
 ];
 
 type FormData = {
+  type: string;
   address: {
     apartmentNumber?: string;
     street: string;
@@ -121,6 +123,9 @@ const formSchema = z.object({
   carpetCleaning: z.boolean(),
   movingOut: z.boolean(),
   interiorWindows: z.boolean(),
+  type: z.enum(['home', 'business'], {
+    required_error: 'You need to select what kind of service you need',
+  }),
 });
 
 type NumberFieldKeys = 'rooms' | 'bathrooms';
@@ -194,6 +199,7 @@ export const StoreModal = () => {
       carpetCleaning: false,
       movingOut: false,
       interiorWindows: false,
+      type: 'home',
     },
   });
 
@@ -207,7 +213,7 @@ export const StoreModal = () => {
       time: time,
     }));
 
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       console.log('Moving to Next Step');
       setCurrentStep(currentStep + 1);
     } else {
@@ -233,21 +239,21 @@ export const StoreModal = () => {
   };
 
   const titleBasedOnStage = [
-    'Book your services',
+    'What kind of services can we help with',
     'What address do you want us to come to',
     'What day and time works best for you',
     'What Service can we help with',
   ];
   const descBasedOnStage = [
-    'Book your services',
+    '',
     'We are currently operating in the GTA only',
     'Bookings start from tomorrow',
   ];
 
   return (
     <Modal
-      title={titleBasedOnStage[currentStep]}
-      description={descBasedOnStage[currentStep] || ''}
+      title={titleBasedOnStage[currentStep - 1]}
+      description={descBasedOnStage[currentStep - 1] || ''}
       isOpen={storeModal.isOpen}
       onClose={storeModal.onClose}
     >
@@ -302,6 +308,43 @@ export const StoreModal = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               {currentStep === 1 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What kind of location is this?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            {...field}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="home" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Home
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="business" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Business
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              {currentStep === 2 && (
                 <>
                   <FormField
                     control={form.control}
@@ -493,7 +536,7 @@ export const StoreModal = () => {
                           type="checkbox"
                           {...form.register(service.id)}
                           id={service.id}
-                          className="checkbox-input-class" // Add your styling classes here
+                          className="checkbox-input-class"
                         />
                         <label
                           htmlFor={service.id}
@@ -523,7 +566,7 @@ export const StoreModal = () => {
                   </Button>
                 )}
 
-                {currentStep === 1 || currentStep === 2 ? (
+                {currentStep === 1 || currentStep === 2 || currentStep === 3 ? (
                   <Button
                     type="submit"
                     className="mt-5"
@@ -533,7 +576,7 @@ export const StoreModal = () => {
                   </Button>
                 ) : (
                   <Button type="submit" className="mt-5">
-                    Calculate Price
+                    Request Quote
                   </Button>
                 )}
               </div>
