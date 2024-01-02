@@ -15,7 +15,7 @@ const Hero = async () => {
   // });
   return (
     <>
-      <div className=" h-[95vh]  relative z-10 px-4  text-white  flex flex-col justify-center items-center">
+      <div className=" h-[80vh]  relative z-10 px-4  text-white  flex flex-col justify-center items-center">
         <h1 className="font-semibold text-5xl">Cleaning done right.</h1>
         <p className="font-extralight text-2xl my-5">
           All of your Home, Office, Airbnb, and Post construction cleaning needs

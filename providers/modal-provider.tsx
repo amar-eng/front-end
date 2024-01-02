@@ -1,7 +1,8 @@
 // 'use client';
 
+import QuoteModal from '@/components/modals/quote-modal';
 import { StoreModal } from '@/components/modals/store-modal';
-import ServicesInfo from '@/components/servicesInfo';
+
 import { useEffect, useState } from 'react';
 
 export const ModalProvider = () => {
@@ -17,11 +18,7 @@ export const ModalProvider = () => {
 
   return (
     <>
-      <StoreModal />
+      <QuoteModal />
     </>
   );
 };
-
-// const addedServices = await getServices({
-//   categoryId: 'd3050703-013f-41fc-801f-936d9a1b5d7f',
-// });

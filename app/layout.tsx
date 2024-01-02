@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import { Montserrat } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 
 import { ModalProvider } from '@/providers/modal-provider';
 
-const font = Montserrat({
-  weight: ['100', '300', '400', '500', '700', '900'],
+const font = Inter({
+  // weight: ['100', '300', '400', '500', '700', '900'],
+  weight: ['300', '400', '500', '700'],
   subsets: ['latin'],
 });
 
