@@ -22,9 +22,12 @@ import { FormInfoData } from '@/types';
 import {
   AlarmPlus,
   Building,
+  Construction,
   DoorClosed,
   Home,
   HomeIcon,
+  Hotel,
+  Landmark,
   ShowerHead,
 } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -94,7 +97,7 @@ const additionalServices: {
 ];
 
 const formSchema = z.object({
-  type: z.enum(['home', 'business'], {
+  type: z.enum(['home', 'business', 'post', 'airbnb'], {
     required_error: 'You need to select what kind of service you need',
   }),
   insideFridge: z.boolean(),
@@ -108,7 +111,7 @@ const formSchema = z.object({
   interiorWindows: z.boolean(),
   rooms: z.number().min(1),
   bathrooms: z.number().min(1),
-  officeSquareFootage: z.number().min(1),
+  officeSquareFootage: z.string(),
   washroomStalls: z.number().min(1),
   businessType: z.enum(['restaurant', 'office', 'retail']),
   footTraffic: z.number().min(1).max(100).optional(),
@@ -193,7 +196,7 @@ const QuoteModal = () => {
       carpetCleaning: false,
       movingOut: false,
       interiorWindows: false,
-      officeSquareFootage: 1,
+      officeSquareFootage: '',
       washroomStalls: 1,
       businessType: 'office',
       footTraffic: 50,
@@ -321,11 +324,7 @@ const QuoteModal = () => {
               <FormItem>
                 <FormLabel>Approximate Square Footage</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Square footage"
-                    {...field}
-                    type="number"
-                  />
+                  <Input placeholder="Square footage" {...field} />
                 </FormControl>
               </FormItem>
             )}
@@ -405,6 +404,18 @@ const QuoteModal = () => {
           </FormItem>
         </>
       );
+    } else if (formData.type === 'airbnb') {
+      return (
+        <>
+          <p>This is a Airbnb</p>
+        </>
+      );
+    } else if (formData.type === 'post') {
+      return (
+        <>
+          <p> this is a post construction</p>
+        </>
+      );
     }
   };
 
@@ -450,12 +461,34 @@ const QuoteModal = () => {
                                 <RadioGroupItem value="business" />
                               </FormControl>
                               <FormLabel className="font-thin flex items-end gap-1">
-                                <Building
+                                <Landmark
                                   width={15}
                                   height={15}
                                   strokeWidth={1}
                                 />
                                 Business
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="airbnb" />
+                              </FormControl>
+                              <FormLabel className="font-thin flex items-end gap-1">
+                                <Hotel width={15} height={15} strokeWidth={1} />
+                                Airbnb
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="post" />
+                              </FormControl>
+                              <FormLabel className="font-thin flex items-end gap-1">
+                                <Construction
+                                  width={15}
+                                  height={15}
+                                  strokeWidth={1}
+                                />
+                                Post Construction
                               </FormLabel>
                             </FormItem>
                           </RadioGroup>

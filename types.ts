@@ -39,7 +39,7 @@ export interface FormInfoData {
   carpetCleaning: boolean;
   movingOut: boolean;
   interiorWindows: boolean;
-  officeSquareFootage?: number;
+  officeSquareFootage: string;
   washroomStalls: number;
   businessType: string;
   footTraffic: number;
