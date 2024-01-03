@@ -1,12 +1,17 @@
+import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel } from './ui/form';
 import { Input } from './ui/input';
 
-const AddressInput = ({ form }) => {
+interface AddressInputProps {
+  form: UseFormReturn<any>; // Define the type of form here
+}
+
+const AddressInput: React.FC<AddressInputProps> = ({ form }) => {
   return (
     <>
       <FormField
         control={form.control}
-        name="address.apartmentNumber"
+        name="apartmentNumber"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Apartment Number</FormLabel>
@@ -18,7 +23,7 @@ const AddressInput = ({ form }) => {
       />
       <FormField
         control={form.control}
-        name="address.street"
+        name="street"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Address</FormLabel>
@@ -30,7 +35,7 @@ const AddressInput = ({ form }) => {
       />
       <FormField
         control={form.control}
-        name="address.city"
+        name="city"
         render={({ field }) => (
           <FormItem>
             <FormLabel>City</FormLabel>
@@ -42,7 +47,7 @@ const AddressInput = ({ form }) => {
       />
       <FormField
         control={form.control}
-        name="address.postalCode"
+        name="postalCode"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Postal Code</FormLabel>

@@ -119,9 +119,9 @@ const formSchema = z.object({
   floorType: z.enum(['carpeted', 'hardwood', 'tile']),
 
   apartmentNumber: z.string().optional(),
-  street: z.string().min(1, { message: 'Street is required' }),
-  city: z.string().min(1, { message: 'City is required' }),
-  postalCode: z.string().min(1, { message: 'Postal Code is required' }),
+  street: z.string().min(5, { message: 'Must be 5 or more characters long' }),
+  city: z.string(),
+  postalCode: z.string(),
 });
 
 type NumberFieldKeys = 'rooms' | 'bathrooms';
@@ -475,6 +475,7 @@ const QuoteModal = () => {
                 </>
               )}
               {currentStep === 2 && renderStep2()}
+              {currentStep === 3 && <AddressInput form={form} />}
 
               <div className="flex items-center justify-between">
                 {currentStep > 1 && (
