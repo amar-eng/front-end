@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import AddressInput from '../addressForm';
 
 type ServiceKeys = keyof Omit<
   typeof formSchema.shape,
@@ -97,7 +98,7 @@ const additionalServices: {
 ];
 
 const formSchema = z.object({
-  type: z.enum(['home', 'business', 'post', 'airbnb'], {
+  type: z.enum(['home', 'business'], {
     required_error: 'You need to select what kind of service you need',
   }),
   insideFridge: z.boolean(),
@@ -116,6 +117,11 @@ const formSchema = z.object({
   businessType: z.enum(['restaurant', 'office', 'retail']),
   footTraffic: z.number().min(1).max(100).optional(),
   floorType: z.enum(['carpeted', 'hardwood', 'tile']),
+
+  apartmentNumber: z.string().optional(),
+  street: z.string().min(1, { message: 'Street is required' }),
+  city: z.string().min(1, { message: 'City is required' }),
+  postalCode: z.string().min(1, { message: 'Postal Code is required' }),
 });
 
 type NumberFieldKeys = 'rooms' | 'bathrooms';
@@ -201,6 +207,10 @@ const QuoteModal = () => {
       businessType: 'office',
       footTraffic: 50,
       floorType: 'carpeted',
+      apartmentNumber: '',
+      street: '',
+      city: '',
+      postalCode: '',
     },
   });
 
@@ -404,18 +414,6 @@ const QuoteModal = () => {
           </FormItem>
         </>
       );
-    } else if (formData.type === 'airbnb') {
-      return (
-        <>
-          <p>This is a Airbnb</p>
-        </>
-      );
-    } else if (formData.type === 'post') {
-      return (
-        <>
-          <p> this is a post construction</p>
-        </>
-      );
     }
   };
 
@@ -467,28 +465,6 @@ const QuoteModal = () => {
                                   strokeWidth={1}
                                 />
                                 Business
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="airbnb" />
-                              </FormControl>
-                              <FormLabel className="font-thin flex items-end gap-1">
-                                <Hotel width={15} height={15} strokeWidth={1} />
-                                Airbnb
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="post" />
-                              </FormControl>
-                              <FormLabel className="font-thin flex items-end gap-1">
-                                <Construction
-                                  width={15}
-                                  height={15}
-                                  strokeWidth={1}
-                                />
-                                Post Construction
                               </FormLabel>
                             </FormItem>
                           </RadioGroup>

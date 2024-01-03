@@ -20,12 +20,10 @@ export interface Service {
 
 export interface FormInfoData {
   type: string;
-  address: {
-    apartmentNumber?: string;
-    street: string;
-    city: string;
-    postalCode: string;
-  };
+  apartmentNumber?: string;
+  street: string;
+  city: string;
+  postalCode: string;
   rooms: number;
   bathrooms: number;
   date: Date;
